@@ -4,22 +4,28 @@ import os
 FILENAME = "tasklist.csv"
 
 
+# Import text to dictionary
 def csvToDictionary(fp):
     tasks = {}
-    fp.seek(0)
     raw = fp.readlines()
+
     for line in raw:
         fields = line.split(";")
-        tasks[fields[0]] = fields[1].replace("\n", "")
+        tasks[fields[0]] = {'checked': fields[1], 'desc': fields[2].replace("\n", "")}
+
     return tasks
 
 
+# Export dictionary to CSV
 def dictionaryToCSV(fp, tasks):
+    # Return to beginning of the file
     fp.seek(0)
     for i in tasks:
-        fp.write("{0};{1}\n".format(i, tasks[i]))
+        checked = "True" if tasks[i]['checked'] else ""
+        fp.write("{0};{1};{2}\n".format(i, checked, tasks[i]['desc']))
 
 
+# Check if db exists
 def dbExists():
     directory = os.path.dirname(os.path.realpath(__file__))
     dbPath = os.sep.join([directory, FILENAME])
@@ -29,20 +35,25 @@ def dbExists():
         return False
 
 
+# List all the tasks
 def listTasks(**kwargs):
     output = []
 
     db = kwargs['db']
     tasks = csvToDictionary(db)
 
+    # Iterate through tasklist and format output
     if len(tasks) != 0:
-        for task in tasks:
-            output.append("{0} - {1}".format(task, tasks[task]))
+        for i in tasks:
+            checkbox = "[x]" if tasks[i]['checked'] else "[ ]"
+
+            output.append("{0} - {1} {2}".format(i, checkbox, tasks[i]["desc"]))
         print("\n".join(output))
     else:
         print("No todos for today! :)")
 
 
+# Add a task to the tasklist
 def addTask(**kwargs):
     args = kwargs['args']
     if (len(args) == 0):
@@ -55,18 +66,42 @@ def addTask(**kwargs):
 
     # Indexing in the CSV starts at 1
     id = len(tasks) + 1
-    tasks[id] = args[0]
+    tasks[id] = {"checked": False, "desc": args[0]}
 
     dictionaryToCSV(db, tasks)
-    print("New task added: {0} - {1}".format(id, tasks[id]))
+    print("New task added: {0} - {1}".format(id, tasks[id]["desc"]))
 
 
-def removeTask(*args):
+# Remove a task from the tasklist
+def removeTask(**kwargs):
     print("Remove task")
 
 
-def completeTask(*args):
-    print("Complete task")
+# Mark a task as complete in tasklist
+def checkTask(**kwargs):
+    args = kwargs['args']
+
+    # Check index
+    if (len(args) == 0):
+        print("Unable to check: no index provided")
+        exit(-1)
+
+    if not args[0].isnumeric():
+        print("Unable to check: index is not a number")
+        exit(-1)
+
+    # Load tasks
+    db = kwargs['db']
+    tasks = csvToDictionary(db)
+
+    i = args[0]
+    if int(i) > len(tasks) or int(i) < 1:
+        print("Unable to check: index is out of bound")
+        exit(-1)
+
+    tasks[i]['checked'] = True
+    dictionaryToCSV(db, tasks)
+    print("Task checked: {0} - {1}".format(args[0], tasks[i]['desc']))
 
 
 # Displays the command line information when no argument is specified
@@ -88,7 +123,7 @@ functions = {
     "-l": ["Lists all the tasks", listTasks],
     "-a": ["Adds a new task", addTask],
     "-r": ["Removes a task", removeTask],
-    "-c": ["Completes a task", completeTask]
+    "-c": ["Completes a task", checkTask]
 }
 
 if __name__ == "__main__":
