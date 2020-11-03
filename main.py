@@ -14,6 +14,10 @@ def csvToDictionary(csv):
     return tasks
 
 
+def dictionaryToCSV(fp, tasks):
+    pass
+
+
 def dbExists():
     directory = os.path.dirname(os.path.realpath(__file__))
     dbPath = os.sep.join([directory, FILENAME])
@@ -37,8 +41,13 @@ def listTasks(**kwargs):
         print("No todos for today! :)")
 
 
-def addTask(*args):
-    print("Add task")
+def addTask(**kwargs):
+    if (len(kwargs['args']) == 0):
+        print("Unable to add: no task provided")
+        exit(-1)
+
+    # Load tasks first, so we can continue the index numbering
+
 
 
 def removeTask(*args):
