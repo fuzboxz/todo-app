@@ -29,9 +29,12 @@ def listTasks(**kwargs):
     db = kwargs['db']
     tasks = csvToDictionary(db)
 
-    for task in tasks:
-        output.append("{0} - {1}".format(task, tasks[task]))
-    print("\n".join(output))
+    if len(tasks) != 0:
+        for task in tasks:
+            output.append("{0} - {1}".format(task, tasks[task]))
+        print("\n".join(output))
+    else:
+        print("No todos for today! :)")
 
 
 def addTask(*args):
