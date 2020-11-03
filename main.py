@@ -21,7 +21,8 @@ def dictionaryToCSV(fp, tasks):
     # Return to beginning of the file
     fp.seek(0)
     for i in tasks:
-        fp.write("{0};{1}\n".format(i, tasks[i]))
+        checked = "True" if tasks[i]['checked'] else ""
+        fp.write("{0};{1};{2}\n".format(i, checked, tasks[i]['desc']))
 
 
 # Check if db exists
@@ -65,10 +66,10 @@ def addTask(**kwargs):
 
     # Indexing in the CSV starts at 1
     id = len(tasks) + 1
-    tasks[id] = [False, args[0]]
+    tasks[id] = {"checked": False, "desc": args[0]}
 
     dictionaryToCSV(db, tasks)
-    print("New task added: {0} - {1}".format(id, tasks[id]))
+    print("New task added: {0} - {1}".format(id, tasks[id]["desc"]))
 
 
 # Remove a task from the tasklist
@@ -89,15 +90,18 @@ def checkTask(**kwargs):
         print("Unable to check: index is not a number")
         exit(-1)
 
-    index = int(args[0])
-
     # Load tasks
     db = kwargs['db']
     tasks = csvToDictionary(db)
 
-    if index > len(tasks):
+    i = args[0]
+    if int(i) > len(tasks) or int(i) < 1:
         print("Unable to check: index is out of bound")
         exit(-1)
+
+    tasks[i]['checked'] = True
+    dictionaryToCSV(db, tasks)
+    print("Task checked: {0} - {1}".format(args[0], tasks[i]['desc']))
 
 
 # Displays the command line information when no argument is specified
