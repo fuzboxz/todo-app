@@ -19,6 +19,7 @@ def csvToDictionary(fp):
 # Export dictionary to CSV
 def dictionaryToCSV(fp, tasks):
     # Return to beginning of the file
+    fp.truncate(0)
     fp.seek(0)
     for i in tasks:
         checked = "True" if tasks[i]['checked'] else ""
@@ -94,9 +95,9 @@ def removeTask(**kwargs):
         print("Unable to check: index is out of bound")
         exit(-1)
 
-    # tasks[i]['checked'] = True
+    print("Task deleted: {0} - {1}".format(args[0], tasks[i]['desc']))
+    del tasks[i]
     dictionaryToCSV(db, tasks)
-    # print("Task checked: {0} - {1}".format(args[0], tasks[i]['desc']))
 
 
 # Mark a task as complete in tasklist
