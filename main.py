@@ -4,22 +4,25 @@ import os
 FILENAME = "tasklist.csv"
 
 
+# Import text to dictionary
 def csvToDictionary(fp):
     tasks = {}
     fp.seek(0)
     raw = fp.readlines()
     for line in raw:
         fields = line.split(";")
-        tasks[fields[0]] = fields[1].replace("\n", "")
+        tasks[fields[0]] = {'checked': fields[1], 'desc': fields[2].replace("\n", "")}
     return tasks
 
 
+# Export dictionary to CSV
 def dictionaryToCSV(fp, tasks):
     fp.seek(0)
     for i in tasks:
         fp.write("{0};{1}\n".format(i, tasks[i]))
 
 
+# Check if db exists
 def dbExists():
     directory = os.path.dirname(os.path.realpath(__file__))
     dbPath = os.sep.join([directory, FILENAME])
@@ -36,8 +39,10 @@ def listTasks(**kwargs):
     tasks = csvToDictionary(db)
 
     if len(tasks) != 0:
-        for task in tasks:
-            output.append("{0} - {1}".format(task, tasks[task]))
+        for i in tasks:
+            checkbox = "[x]" if tasks[i]['checked'] else "[ ]"
+
+            output.append("{0} - {1} {2}".format(i, checkbox, tasks[i]["desc"]))
         print("\n".join(output))
     else:
         print("No todos for today! :)")
@@ -55,7 +60,7 @@ def addTask(**kwargs):
 
     # Indexing in the CSV starts at 1
     id = len(tasks) + 1
-    tasks[id] = args[0]
+    tasks[id] = [False, args[0]]
 
     dictionaryToCSV(db, tasks)
     print("New task added: {0} - {1}".format(id, tasks[id]))
