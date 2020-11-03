@@ -4,14 +4,20 @@ import os
 FILENAME = "tasklist.csv"
 
 
-def csvToDictionary(csv):
+def csvToDictionary(fp):
     tasks = {}
-    csv.seek(0)
-    raw = csv.readlines()
+    fp.seek(0)
+    raw = fp.readlines()
     for line in raw:
         fields = line.split(";")
         tasks[fields[0]] = fields[1].replace("\n", "")
     return tasks
+
+
+def dictionaryToCSV(fp, tasks):
+    fp.seek(0)
+    for i in tasks:
+        fp.write("{0};{1}\n".format(i, tasks[i]))
 
 
 def dbExists():
@@ -37,8 +43,22 @@ def listTasks(**kwargs):
         print("No todos for today! :)")
 
 
-def addTask(*args):
-    print("Add task")
+def addTask(**kwargs):
+    args = kwargs['args']
+    if (len(args) == 0):
+        print("Unable to add: no task provided")
+        exit(-1)
+
+    # Load tasks first, so we can continue the index numbering
+    db = kwargs['db']
+    tasks = csvToDictionary(db)
+
+    # Indexing in the CSV starts at 1
+    id = len(tasks) + 1
+    tasks[id] = args[0]
+
+    dictionaryToCSV(db, tasks)
+    print("New task added: {0} - {1}".format(id, tasks[id]))
 
 
 def removeTask(*args):
