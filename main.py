@@ -19,6 +19,7 @@ def csvToDictionary(fp):
 # Export dictionary to CSV
 def dictionaryToCSV(fp, tasks):
     # Return to beginning of the file
+    fp.truncate(0)
     fp.seek(0)
     for i in tasks:
         checked = "True" if tasks[i]['checked'] else ""
@@ -74,7 +75,29 @@ def addTask(**kwargs):
 
 # Remove a task from the tasklist
 def removeTask(**kwargs):
-    print("Remove task")
+    args = kwargs['args']
+
+    # Check index
+    if (len(args) == 0):
+        print("Unable to check: no index provided")
+        exit(-1)
+
+    if not args[0].isnumeric():
+        print("Unable to check: index is not a number")
+        exit(-1)
+
+    # Load tasks
+    db = kwargs['db']
+    tasks = csvToDictionary(db)
+
+    i = args[0]
+    if int(i) > len(tasks) or int(i) < 1:
+        print("Unable to check: index is out of bound")
+        exit(-1)
+
+    print("Task deleted: {0} - {1}".format(args[0], tasks[i]['desc']))
+    del tasks[i]
+    dictionaryToCSV(db, tasks)
 
 
 # Mark a task as complete in tasklist
@@ -141,6 +164,10 @@ if __name__ == "__main__":
                     exit(0)
                 except IOError:
                     pass
+            else:
+                print("Unsupported argument")
+                showHelp()
+                exit(-1)
 
         else:
             print("Error: tasklist.csv not accessible")
