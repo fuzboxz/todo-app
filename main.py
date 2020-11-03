@@ -7,16 +7,18 @@ FILENAME = "tasklist.csv"
 # Import text to dictionary
 def csvToDictionary(fp):
     tasks = {}
-    fp.seek(0)
     raw = fp.readlines()
+
     for line in raw:
         fields = line.split(";")
         tasks[fields[0]] = {'checked': fields[1], 'desc': fields[2].replace("\n", "")}
+
     return tasks
 
 
 # Export dictionary to CSV
 def dictionaryToCSV(fp, tasks):
+    # Return to beginning of the file
     fp.seek(0)
     for i in tasks:
         fp.write("{0};{1}\n".format(i, tasks[i]))
@@ -32,12 +34,14 @@ def dbExists():
         return False
 
 
+# List all the tasks
 def listTasks(**kwargs):
     output = []
 
     db = kwargs['db']
     tasks = csvToDictionary(db)
 
+    # Iterate through tasklist and format output
     if len(tasks) != 0:
         for i in tasks:
             checkbox = "[x]" if tasks[i]['checked'] else "[ ]"
@@ -48,6 +52,7 @@ def listTasks(**kwargs):
         print("No todos for today! :)")
 
 
+# Add a task to the tasklist
 def addTask(**kwargs):
     args = kwargs['args']
     if (len(args) == 0):
@@ -66,12 +71,33 @@ def addTask(**kwargs):
     print("New task added: {0} - {1}".format(id, tasks[id]))
 
 
-def removeTask(*args):
+# Remove a task from the tasklist
+def removeTask(**kwargs):
     print("Remove task")
 
 
-def completeTask(*args):
-    print("Complete task")
+# Mark a task as complete in tasklist
+def checkTask(**kwargs):
+    args = kwargs['args']
+
+    # Check index
+    if (len(args) == 0):
+        print("Unable to check: no index provided")
+        exit(-1)
+
+    if not args[0].isnumeric():
+        print("Unable to check: index is not a number")
+        exit(-1)
+
+    index = int(args[0])
+
+    # Load tasks
+    db = kwargs['db']
+    tasks = csvToDictionary(db)
+
+    if index > len(tasks):
+        print("Unable to check: index is out of bound")
+        exit(-1)
 
 
 # Displays the command line information when no argument is specified
@@ -93,7 +119,7 @@ functions = {
     "-l": ["Lists all the tasks", listTasks],
     "-a": ["Adds a new task", addTask],
     "-r": ["Removes a task", removeTask],
-    "-c": ["Completes a task", completeTask]
+    "-c": ["Completes a task", checkTask]
 }
 
 if __name__ == "__main__":
