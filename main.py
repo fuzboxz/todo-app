@@ -74,7 +74,29 @@ def addTask(**kwargs):
 
 # Remove a task from the tasklist
 def removeTask(**kwargs):
-    print("Remove task")
+    args = kwargs['args']
+
+    # Check index
+    if (len(args) == 0):
+        print("Unable to check: no index provided")
+        exit(-1)
+
+    if not args[0].isnumeric():
+        print("Unable to check: index is not a number")
+        exit(-1)
+
+    # Load tasks
+    db = kwargs['db']
+    tasks = csvToDictionary(db)
+
+    i = args[0]
+    if int(i) > len(tasks) or int(i) < 1:
+        print("Unable to check: index is out of bound")
+        exit(-1)
+
+    # tasks[i]['checked'] = True
+    dictionaryToCSV(db, tasks)
+    # print("Task checked: {0} - {1}".format(args[0], tasks[i]['desc']))
 
 
 # Mark a task as complete in tasklist
