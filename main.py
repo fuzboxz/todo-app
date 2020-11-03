@@ -141,6 +141,10 @@ if __name__ == "__main__":
                     exit(0)
                 except IOError:
                     pass
+            else:
+                print("Unsupported argument")
+                showHelp()
+                exit(-1)
 
         else:
             print("Error: tasklist.csv not accessible")
