@@ -16,6 +16,14 @@ cd fuzboxz-todo-app
 python app.py
 ```
 
+## Running unit tests
+
+Basic functionality tests are provided to help with further development. To execute the test cases run the following commands. The first command can be ignored if *pytest* is installed.
+```
+pip install pytest
+pytest unittests.py
+```
+
 ## Usage
 
 TODO app is a command-line interface application which uses command line switches to achieve it's functionality. The following functions are currently supported. 
