@@ -16,6 +16,7 @@ def dbExists(filename):
 # Import raw text from file to dictionary
 def csvToDictionary(fp):
     tasks = {}
+    fp.seek(0)
     raw = fp.readlines()
 
     for line in raw:
